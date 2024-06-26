@@ -1,25 +1,25 @@
 const std = @import("std");
 
-const List = @import("./List.zig");
+const list = @import("./list.zig");
 
 pub fn Pool(comptime T: type) type {
     return struct {
         const Self = @This();
 
-        const TList = List.LIFO(T);
-        const TNode = TList.Node;
+        const List = list.LIFO(T);
+        const Node = List.Node;
 
         allocator: std.mem.Allocator,
-        list: TList,
+        list: List,
 
         pub fn init(allocator: std.mem.Allocator) Self {
             return .{
                 .allocator = allocator,
-                .list = TList.init(),
+                .list = List.init(),
             };
         }
 
-        fn destroy(self: *Self, node: *TNode) void {
+        fn destroy(self: *Self, node: *Node) void {
             self.allocator.destroy(node);
         }
 
@@ -28,16 +28,16 @@ pub fn Pool(comptime T: type) type {
             self.list.deinit();
         }
 
-        pub fn get(self: *Self) !*TNode {
-            if (self.list.pop_head()) |node| {
+        pub fn get(self: *Self) !*Node {
+            if (self.list.popHead()) |node| {
                 return node;
             }
 
-            return try self.allocator.create(TNode);
+            return try self.allocator.create(Node);
         }
 
-        pub fn put(self: *Self, node: *TNode) void {
-            self.list.push_tail(node);
+        pub fn put(self: *Self, node: *Node) void {
+            self.list.pushTail(node);
         }
     };
 }

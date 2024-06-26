@@ -15,6 +15,7 @@ pub fn Prototype(comptime prototype: type) type {
     }
 
     const run = @field(prototype, "run");
+
     const run_info = @typeInfo(@TypeOf(run));
 
     if (run_info != .Fn) {

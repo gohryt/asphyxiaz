@@ -1,45 +1,52 @@
 const std = @import("std");
-
 const list = @import("list.zig");
 
 pub fn Pool(comptime T: type) type {
     return struct {
         const Self = @This();
 
-        const List = list.LIFO(T);
+        const List = list.Queue(T);
         const Node = List.Node;
 
         allocator: std.mem.Allocator,
         list: List,
+        size: usize = 0,
+        free: usize = 0,
 
-        pub fn init(allocator: std.mem.Allocator) Self {
+        pub fn init(allocator: std.mem.Allocator, size: ?usize) Self {
             return .{
                 .allocator = allocator,
                 .list = List.init(),
+                .size = if (size) |value| value else 0,
             };
         }
 
-        fn destroy(self: *Self, node: *Node) void {
-            self.allocator.destroy(node);
-        }
-
         pub fn deinit(self: *Self) void {
-            self.list.each(Self, self, destroy);
+            var iterator = self.list.iterator();
+
+            while (iterator.next()) |node| {
+                self.allocator.destroy(node);
+            }
+
             self.list.deinit();
         }
 
-        pub fn get(self: *Self) !T {
-            if (self.list.popHead()) |node| {
-                return node.data;
+        pub fn get(self: *Self) !*Node {
+            if (self.list.pull()) |node| {
+                self.free -= 1;
+                return node;
             }
 
-            return try self.allocator.create(T);
+            return try self.allocator.create(Node);
         }
 
-        pub fn put(self: *Self, data: T) !void {
-            const node = try self.allocator.create(Node);
-            node.data = data;
-            self.list.pushTail(node);
+        pub fn put(self: *Self, node: *Node) void {
+            if (self.size == 0 or (self.free < self.size)) {
+                self.free += 1;
+                self.list.push(node);
+            } else {
+                self.allocator.destroy(node);
+            }
         }
     };
 }

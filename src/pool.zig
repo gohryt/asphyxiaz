@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const list = @import("./list.zig");
+const list = @import("list.zig");
 
 pub fn Pool(comptime T: type) type {
     return struct {
@@ -28,15 +28,17 @@ pub fn Pool(comptime T: type) type {
             self.list.deinit();
         }
 
-        pub fn get(self: *Self) !*Node {
+        pub fn get(self: *Self) !T {
             if (self.list.popHead()) |node| {
-                return node;
+                return node.data;
             }
 
-            return try self.allocator.create(Node);
+            return try self.allocator.create(T);
         }
 
-        pub fn put(self: *Self, node: *Node) void {
+        pub fn put(self: *Self, data: T) !void {
+            const node = try self.allocator.create(Node);
+            node.data = data;
             self.list.pushTail(node);
         }
     };

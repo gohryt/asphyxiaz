@@ -1,10 +1,23 @@
-pub fn LIFO(comptime T: type) type {
+pub fn Queue(comptime T: type) type {
     return struct {
         const Self = @This();
 
         pub const Node = struct {
             next: ?*Node = null,
             data: T,
+        };
+
+        pub const Iterator = struct {
+            node: ?*Node,
+
+            pub fn next(self: *Iterator) ?*Node {
+                if (self.node) |node| {
+                    self.node = node.next;
+                    return node;
+                }
+
+                return null;
+            }
         };
 
         head: ?*Node = null,
@@ -24,7 +37,11 @@ pub fn LIFO(comptime T: type) type {
             };
         }
 
-        pub fn pushTail(self: *Self, node: *Node) void {
+        pub fn iterator(self: *Self) Iterator {
+            return .{ .node = self.head };
+        }
+
+        pub fn push(self: *Self, node: *Node) void {
             node.next = null;
 
             if (self.tail) |tail| {
@@ -36,7 +53,7 @@ pub fn LIFO(comptime T: type) type {
             self.tail = node;
         }
 
-        pub fn popHead(self: *Self) ?*Node {
+        pub fn pull(self: *Self) ?*Node {
             if (self.head) |head| {
                 if (head.next) |next| {
                     self.head = next;
@@ -52,25 +69,29 @@ pub fn LIFO(comptime T: type) type {
 
             return null;
         }
-
-        pub fn each(self: *Self, comptime T_userdata: type, userdata: *T_userdata, do: fn (*T_userdata, *Node) void) void {
-            var head = self.head;
-
-            while (head) |node| {
-                head = node.next;
-                do(userdata, node);
-            }
-        }
     };
 }
 
-pub fn FIFO(comptime T: type) type {
+pub fn Stack(comptime T: type) type {
     return struct {
         const Self = @This();
 
         pub const Node = struct {
             next: ?*Node = null,
             data: T,
+        };
+
+        pub const Iterator = struct {
+            node: ?*Node,
+
+            pub fn next(self: *Iterator) ?*Node {
+                if (self.node) |node| {
+                    self.node = node.next;
+                    return node;
+                }
+
+                return null;
+            }
         };
 
         head: ?*Node = null,
@@ -87,12 +108,16 @@ pub fn FIFO(comptime T: type) type {
             };
         }
 
-        pub fn pushHead(self: *Self, node: *Node) void {
+        pub fn iterator(self: *Self) Iterator {
+            return .{ .node = self.head };
+        }
+
+        pub fn push(self: *Self, node: *Node) void {
             node.next = self.head;
             self.head = node;
         }
 
-        pub fn popHead(self: *Self) ?*Node {
+        pub fn pull(self: *Self) ?*Node {
             if (self.head) |head| {
                 self.head = head.next;
                 return head;
@@ -100,19 +125,10 @@ pub fn FIFO(comptime T: type) type {
 
             return null;
         }
-
-        pub fn each(self: *Self, comptime T_userdata: type, userdata: *T_userdata, do: fn (*T_userdata, *Node) void) void {
-            var head = self.head;
-
-            while (head) |node| {
-                head = node.next;
-                do(userdata, node);
-            }
-        }
     };
 }
 
-pub fn DL(comptime T: type) type {
+pub fn DoublyLinked(comptime T: type) type {
     return struct {
         const Self = @This();
 
@@ -120,6 +136,19 @@ pub fn DL(comptime T: type) type {
             previous: ?*Node = null,
             next: ?*Node = null,
             data: T,
+        };
+
+        pub const Iterator = struct {
+            node: ?*Node,
+
+            pub fn next(self: *Iterator) ?*Node {
+                if (self.node) |node| {
+                    self.node = node.next;
+                    return node;
+                }
+
+                return null;
+            }
         };
 
         head: ?*Node = null,
@@ -137,6 +166,10 @@ pub fn DL(comptime T: type) type {
                 .head = null,
                 .tail = null,
             };
+        }
+
+        pub fn iterator(self: *Self) Iterator {
+            return .{ .node = self.head };
         }
 
         pub fn pushHead(self: *Self, node: *Node) void {
@@ -165,7 +198,7 @@ pub fn DL(comptime T: type) type {
             self.tail = node;
         }
 
-        pub fn popHead(self: *Self) ?*Node {
+        pub fn pullHead(self: *Self) ?*Node {
             if (self.head) |head| {
                 self.head = head.next;
 
@@ -181,7 +214,7 @@ pub fn DL(comptime T: type) type {
             return null;
         }
 
-        pub fn popTail(self: *Self) ?*Node {
+        pub fn pullTail(self: *Self) ?*Node {
             if (self.tail) |tail| {
                 self.tail = tail.previous;
 
@@ -195,15 +228,6 @@ pub fn DL(comptime T: type) type {
             }
 
             return null;
-        }
-
-        pub fn each(self: *Self, comptime T_userdata: type, userdata: *T_userdata, do: fn (*T_userdata, *Node) void) void {
-            var head = self.head;
-
-            while (head) |node| {
-                head = node.next;
-                do(userdata, node);
-            }
         }
     };
 }

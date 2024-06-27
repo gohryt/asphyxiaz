@@ -3,12 +3,12 @@ pub fn LIFO(comptime T: type) type {
         const Self = @This();
 
         pub const Node = struct {
-            next: ?*Node,
+            next: ?*Node = null,
             data: T,
         };
 
-        head: ?*Node,
-        tail: ?*Node,
+        head: ?*Node = null,
+        tail: ?*Node = null,
 
         pub fn init() Self {
             return .{
@@ -69,11 +69,11 @@ pub fn FIFO(comptime T: type) type {
         const Self = @This();
 
         pub const Node = struct {
-            next: ?*Node,
+            next: ?*Node = null,
             data: T,
         };
 
-        head: ?*Node,
+        head: ?*Node = null,
 
         pub fn init() Self {
             return .{

@@ -1,7 +1,7 @@
-const Runnable = @This();
+const Closure = @This();
 
-userdata: *const anyopaque,
-function: *const fn (*const anyopaque) void,
+ptr: *const anyopaque,
+run: *const fn (*const anyopaque) void,
 
 pub fn Prototype(comptime prototype: type) type {
     const prototype_info = @typeInfo(prototype);
@@ -27,10 +27,10 @@ pub fn Prototype(comptime prototype: type) type {
 
         data: prototype,
 
-        pub fn build(self: *Self) Runnable {
+        pub fn build(self: *Self) Closure {
             return .{
-                .userdata = @ptrCast(&self.data),
-                .function = @ptrCast(&run),
+                .ptr = @ptrCast(&self.data),
+                .run = @ptrCast(&run),
             };
         }
     };

@@ -9,10 +9,33 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/root.zig"),
     });
 
+    // Closure example
+    const Closure = b.addExecutable(.{
+        .name = "Closure",
+        .root_source_file = b.path("examples/Closure.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    Closure.root_module.addImport("asphyxiaz", asphyxiaz_module);
+
+    b.installArtifact(Closure);
+
+    const Closure_cmd = b.addRunArtifact(Closure);
+
+    Closure_cmd.step.dependOn(b.getInstallStep());
+
+    if (b.args) |args| {
+        Closure_cmd.addArgs(args);
+    }
+
+    const Closure_step = b.step("Closure", "Run the Closure example");
+    Closure_step.dependOn(&Closure_cmd.step);
+
     // list.Queue example
     const list_Queue = b.addExecutable(.{
         .name = "list-Queue",
-        .root_source_file = b.path("examples/list-Queue/main.zig"),
+        .root_source_file = b.path("examples/list/Queue.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -35,7 +58,7 @@ pub fn build(b: *std.Build) void {
     // list.Stack example
     const list_Stack = b.addExecutable(.{
         .name = "list-Stack",
-        .root_source_file = b.path("examples/list-Stack/main.zig"),
+        .root_source_file = b.path("examples/list/Stack.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -58,7 +81,7 @@ pub fn build(b: *std.Build) void {
     // list.DoublyLinked example
     const list_DoublyLinked = b.addExecutable(.{
         .name = "list-DoublyLinked",
-        .root_source_file = b.path("examples/list-DoublyLinked/main.zig"),
+        .root_source_file = b.path("examples/list/DoublyLinked.zig"),
         .target = target,
         .optimize = optimize,
     });

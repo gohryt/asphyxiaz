@@ -13,11 +13,19 @@ pub fn Pool(comptime T: type) type {
         size: usize = 0,
         free: usize = 0,
 
-        pub fn init(allocator: std.mem.Allocator, size: ?usize) Self {
+        const Size = union(enum) {
+            size: usize,
+            none: void,
+        };
+
+        pub fn init(allocator: std.mem.Allocator, size: Size) Self {
             return .{
                 .allocator = allocator,
                 .list = List.init(),
-                .size = if (size) |value| value else 0,
+                .size = switch (size) {
+                    .size => size.size,
+                    .none => 0,
+                },
             };
         }
 

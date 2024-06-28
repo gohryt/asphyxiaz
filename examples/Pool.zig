@@ -15,7 +15,7 @@ pub fn main() !void {
 
     const allocator = gpa.allocator();
 
-    var pool = asphyxiaz.Pool(Object).init(allocator, null);
+    var pool = asphyxiaz.Pool(Object).init(allocator, .none);
     defer pool.deinit();
 
     const object_1 = try pool.get();

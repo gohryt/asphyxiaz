@@ -101,29 +101,6 @@ pub fn build(b: *std.Build) void {
     const list_DoublyLinked_step = b.step("list-DoublyLinked", "Run the list-DoublyLinked example");
     list_DoublyLinked_step.dependOn(&list_DoublyLinked_cmd.step);
 
-    // Closure example
-    const Pool = b.addExecutable(.{
-        .name = "Pool",
-        .root_source_file = b.path("examples/Pool.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    Pool.root_module.addImport("asphyxiaz", asphyxiaz_module);
-
-    b.installArtifact(Pool);
-
-    const Pool_cmd = b.addRunArtifact(Pool);
-
-    Pool_cmd.step.dependOn(b.getInstallStep());
-
-    if (b.args) |args| {
-        Pool_cmd.addArgs(args);
-    }
-
-    const Pool_step = b.step("Pool", "Run the Pool example");
-    Pool_step.dependOn(&Pool_cmd.step);
-
     // asphyxiaz tests
     const asphyxiaz_tests = b.addTest(.{
         .root_source_file = b.path("src/root.zig"),
